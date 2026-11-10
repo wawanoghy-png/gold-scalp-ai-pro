@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a1020"><meta name="description" content="Dashboard signal scalping XAUUSD M1 dan M5."><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png">
+<title>GOLD SCALP AI PRO</title>
+<style>
+:root{--bg:#0a1020;--panel:#141d32;--line:#293653;--text:#edf2ff;--muted:#9eacc8;--gold:#efc86b;--green:#38d9a0;--red:#ff7180}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#09101f,#111b30);color:var(--text);font:15px system-ui,Arial}
+header{padding:18px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+h1{margin:0;color:var(--gold);font-size:21px}.muted{color:var(--muted);font-size:12px}
+main{max-width:1200px;margin:auto;padding:15px;display:grid;gap:14px}.layout{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px;min-width:0}
+h2{font-size:15px;margin:0 0 12px}.chart{height:470px;border-radius:10px;overflow:hidden;background:#090f1d}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}label{display:block;color:var(--muted);font-size:12px;margin:0 0 5px}
+select,input,button{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;background:#0b1427;color:var(--text);font:inherit}
+button{background:#c69a3e;color:#101625;font-weight:800;border:0;cursor:pointer;margin-top:10px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.metric{background:#0c162a;border-radius:9px;padding:10px}.metric small{display:block;color:var(--muted);font-size:11px}.metric b{font-size:16px;overflow-wrap:anywhere}
+.signal{border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:12px}.direction{font-size:27px;font-weight:850}.BUY{color:var(--green)}.SELL{color:var(--red)}.WAIT{color:var(--gold)}
+.status{font-size:12px;color:var(--muted);min-height:18px;margin-top:8px}.notice{font-size:12px;line-height:1.55;color:#f3dfad;background:#282317;border-left:3px solid var(--gold);padding:10px;border-radius:6px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.chart{height:410px}}@media(max-width:420px){.row{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><div><h1>GOLD SCALP AI PRO</h1><div class="muted">XAUUSD · Signal teknikal M1 / M5</div></div><div class="muted">TradingView + data candle server</div></header>
+<main><section class="panel" style="padding:10px 14px"><div class="row" style="align-items:center"><div><b>Pasang sebagai aplikasi</b><div class="muted">Tambahkan GOLD SCALP AI PRO ke layar utama HP.</div></div><div><button id="installBtn" type="button" style="margin:0" hidden>INSTALL APP</button><div id="installHelp" class="muted" style="text-align:right">Gunakan menu Chrome ⋮ lalu “Tambahkan ke layar utama” setelah website online.</div></div></div></section><div class="layout">
+<section class="panel"><h2>Chart TradingView — XAUUSD</h2><div class="chart"><div id="tv" style="height:100%;width:100%"></div></div><p class="muted">Chart TradingView dan mesin signal menggunakan sumber data masing-masing; signal dihitung dari candle Twelve Data.</p></section>
+<section class="panel"><h2>Signal market</h2>
+<div class="row"><div><label>Timeframe</label><select id="tf"><option value="1min">M1</option><option value="5min" selected>M5</option></select></div>
+<div><label>Auto refresh</label><select id="refresh"><option value="0">Mati</option><option value="60" selected>60 detik</option><option value="300">5 menit</option></select></div>
+<div><label>Definisi 1 pip (USD)</label><input id="pip" type="number" min="0.001" step="0.001" value="0.01"></div>
+<div><label>Stop Loss (pips)</label><select id="slp"><option>20</option><option selected>25</option><option>30</option></select></div>
+<div><label>Take Profit (pips)</label><select id="tpp"><option>50</option><option selected>75</option><option>100</option></select></div>
+</div><button id="go">ANALISA SEKARANG</button><div id="status" class="status">Menunggu permintaan analisa.</div>
+<div class="signal"><div class="muted">HASIL TERAKHIR</div><div id="direction" class="direction WAIT">WAIT</div><div id="reason" class="muted">Tekan Analisa Sekarang untuk mengambil data.</div>
+<div class="metrics">
+<div class="metric"><small>ENTRY indikatif</small><b id="entry">—</b></div><div class="metric"><small>STOP LOSS</small><b id="sl">—</b></div>
+<div class="metric"><small>TAKE PROFIT</small><b id="tp">—</b></div><div class="metric"><small>RSI 14</small><b id="rsi">—</b></div>
+<div class="metric"><small>EMA 9 / EMA 21</small><b id="ema">—</b></div><div class="metric"><small>ATR 14</small><b id="atr">—</b></div>
+</div></div></section></div>
+<section class="panel"><h2>Aturan dan risiko</h2><p class="muted">BUY: EMA 9 &gt; EMA 21, RSI 50–70, candle terakhir bullish. SELL: EMA 9 &lt; EMA 21, RSI 30–50, candle terakhir bearish. Kondisi lain = WAIT. Ini strategi teknikal rule-based, bukan AI prediktif dan tidak membaca semua struktur market.</p>
+<div class="notice"><b>Periksa definisi pip broker.</b> Default 1 pip = $0,01: SL 20–30 pips berarti jarak $0,20–$0,30; TP 50–100 pips berarti $0,50–$1,00. Jika definisi pip XAUUSD di broker berbeda, ubah nilai pip. Entry dihitung dari candle terakhir, bukan harga eksekusi broker. Spread, slippage, candle yang belum tutup, dan volatilitas bisa mengubah hasil. Uji di akun demo terlebih dahulu.</div></section>
+</main><footer>GOLD SCALP AI PRO · Signal saja, tidak mengirim order ke broker · Tidak menjamin profit.</footer>
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+if(window.TradingView)new TradingView.widget({autosize:true,symbol:"OANDA:XAUUSD",interval:"5",timezone:"Asia/Jakarta",theme:"dark",style:"1",locale:"id",enable_publishing:false,allow_symbol_change:true,container_id:"tv"});
+const $=id=>document.getElementById(id);let timer=null;
+let deferredInstallPrompt=null;
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault(); deferredInstallPrompt=event; $("installBtn").hidden=false;
+  $("installHelp").textContent="Website siap dipasang ke layar utama.";
+});
+$("installBtn").addEventListener("click", async () => {
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null; $("installBtn").hidden=true;
+});
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}
+
+function n(v){return Number(v).toFixed(2)}
+function show(d){
+ const side=d.signal;$("direction").textContent=side;$("direction").className="direction "+side;
+ $("reason").textContent=d.reason;$("rsi").textContent=n(d.rsi);$("ema").textContent=n(d.ema9)+" / "+n(d.ema21);$("atr").textContent=n(d.atr);
+ if(side==="WAIT"){["entry","sl","tp"].forEach(id=>$(id).textContent="—");return}
+ const pip=Number($("pip").value),entry=Number(d.entry),slDist=Number($("slp").value)*pip,tpDist=Number($("tpp").value)*pip;
+ if(!pip||pip<=0){$("status").textContent="Nilai pip tidak valid.";return}
+ $("entry").textContent=n(entry);$("sl").textContent=n(entry+(side==="BUY"?-slDist:slDist));$("tp").textContent=n(entry+(side==="BUY"?tpDist:-tpDist));
+}
+async function analyze(){
+ $("status").textContent="Mengambil candle market…";
+ try{const r=await fetch("/api/analyze?interval="+encodeURIComponent($("tf").value));const d=await r.json();if(!r.ok)throw Error(d.error||"Gagal mengambil data");
+ show(d);$("status").textContent="Data candle: "+d.candleTime+" · diperbarui "+new Date(d.fetchedAt).toLocaleTimeString("id-ID");
+ }catch(e){$("status").textContent="Error: "+e.message+" Pastikan server dan API key sudah disiapkan."}
+}
+function setRefresh(){if(timer)clearInterval(timer);let sec=Number($("refresh").value);if(sec)timer=setInterval(analyze,sec*1000)}
+$("go").addEventListener("click",analyze);$("refresh").addEventListener("change",setRefresh);$("tf").addEventListener("change",analyze);setRefresh();
+</script></body></html>
