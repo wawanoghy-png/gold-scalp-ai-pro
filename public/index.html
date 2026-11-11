@@ -1,75 +1,618 @@
 <!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a1020"><meta name="description" content="Dashboard signal scalping XAUUSD M1 dan M5."><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png">
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080a0e">
 <title>GOLD SCALP AI PRO</title>
 <style>
-:root{--bg:#0a1020;--panel:#141d32;--line:#293653;--text:#edf2ff;--muted:#9eacc8;--gold:#efc86b;--green:#38d9a0;--red:#ff7180}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#09101f,#111b30);color:var(--text);font:15px system-ui,Arial}
-header{padding:18px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-h1{margin:0;color:var(--gold);font-size:21px}.muted{color:var(--muted);font-size:12px}
-main{max-width:1200px;margin:auto;padding:15px;display:grid;gap:14px}.layout{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px;min-width:0}
-h2{font-size:15px;margin:0 0 12px}.chart{height:470px;border-radius:10px;overflow:hidden;background:#090f1d}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}label{display:block;color:var(--muted);font-size:12px;margin:0 0 5px}
-select,input,button{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;background:#0b1427;color:var(--text);font:inherit}
-button{background:#c69a3e;color:#101625;font-weight:800;border:0;cursor:pointer;margin-top:10px}
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.metric{background:#0c162a;border-radius:9px;padding:10px}.metric small{display:block;color:var(--muted);font-size:11px}.metric b{font-size:16px;overflow-wrap:anywhere}
-.signal{border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:12px}.direction{font-size:27px;font-weight:850}.BUY{color:var(--green)}.SELL{color:var(--red)}.WAIT{color:var(--gold)}
-.status{font-size:12px;color:var(--muted);min-height:18px;margin-top:8px}.notice{font-size:12px;line-height:1.55;color:#f3dfad;background:#282317;border-left:3px solid var(--gold);padding:10px;border-radius:6px}
-footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
-@media(max-width:800px){.layout{grid-template-columns:1fr}.chart{height:410px}}@media(max-width:420px){.row{grid-template-columns:1fr}}
-</style></head>
-<body>
-<header><div><h1>GOLD SCALP AI PRO</h1><div class="muted">XAUUSD · Signal teknikal M1 / M5</div></div><div class="muted">TradingView + data candle server</div></header>
-<main><section class="panel" style="padding:10px 14px"><div class="row" style="align-items:center"><div><b>Pasang sebagai aplikasi</b><div class="muted">Tambahkan GOLD SCALP AI PRO ke layar utama HP.</div></div><div><button id="installBtn" type="button" style="margin:0" hidden>INSTALL APP</button><div id="installHelp" class="muted" style="text-align:right">Gunakan menu Chrome ⋮ lalu “Tambahkan ke layar utama” setelah website online.</div></div></div></section><div class="layout">
-<section class="panel"><h2>Chart TradingView — XAUUSD</h2><div class="chart"><div id="tv" style="height:100%;width:100%"></div></div><p class="muted">Chart TradingView dan mesin signal menggunakan sumber data masing-masing; signal dihitung dari candle Twelve Data.</p></section>
-<section class="panel"><h2>Signal market</h2>
-<div class="row"><div><label>Timeframe</label><select id="tf"><option value="1min">M1</option><option value="5min" selected>M5</option></select></div>
-<div><label>Auto refresh</label><select id="refresh"><option value="0">Mati</option><option value="60" selected>60 detik</option><option value="300">5 menit</option></select></div>
-<div><label>Definisi 1 pip (USD)</label><input id="pip" type="number" min="0.001" step="0.001" value="0.01"></div>
-<div><label>Stop Loss (pips)</label><select id="slp"><option>20</option><option selected>25</option><option>30</option></select></div>
-<div><label>Take Profit (pips)</label><select id="tpp"><option>50</option><option selected>75</option><option>100</option></select></div>
-</div><button id="go">ANALISA SEKARANG</button><div id="status" class="status">Menunggu permintaan analisa.</div>
-<div class="signal"><div class="muted">HASIL TERAKHIR</div><div id="direction" class="direction WAIT">WAIT</div><div id="reason" class="muted">Tekan Analisa Sekarang untuk mengambil data.</div>
-<div class="metrics">
-<div class="metric"><small>ENTRY indikatif</small><b id="entry">—</b></div><div class="metric"><small>STOP LOSS</small><b id="sl">—</b></div>
-<div class="metric"><small>TAKE PROFIT</small><b id="tp">—</b></div><div class="metric"><small>RSI 14</small><b id="rsi">—</b></div>
-<div class="metric"><small>EMA 9 / EMA 21</small><b id="ema">—</b></div><div class="metric"><small>ATR 14</small><b id="atr">—</b></div>
-</div></div></section></div>
-<section class="panel"><h2>Aturan dan risiko</h2><p class="muted">BUY: EMA 9 &gt; EMA 21, RSI 50–70, candle terakhir bullish. SELL: EMA 9 &lt; EMA 21, RSI 30–50, candle terakhir bearish. Kondisi lain = WAIT. Ini strategi teknikal rule-based, bukan AI prediktif dan tidak membaca semua struktur market.</p>
-<div class="notice"><b>Periksa definisi pip broker.</b> Default 1 pip = $0,01: SL 20–30 pips berarti jarak $0,20–$0,30; TP 50–100 pips berarti $0,50–$1,00. Jika definisi pip XAUUSD di broker berbeda, ubah nilai pip. Entry dihitung dari candle terakhir, bukan harga eksekusi broker. Spread, slippage, candle yang belum tutup, dan volatilitas bisa mengubah hasil. Uji di akun demo terlebih dahulu.</div></section>
-</main><footer>GOLD SCALP AI PRO · Signal saja, tidak mengirim order ke broker · Tidak menjamin profit.</footer>
-<script src="https://s3.tradingview.com/tv.js"></script>
-<script>
-if(window.TradingView)new TradingView.widget({autosize:true,symbol:"OANDA:XAUUSD",interval:"5",timezone:"Asia/Jakarta",theme:"dark",style:"1",locale:"id",enable_publishing:false,allow_symbol_change:true,container_id:"tv"});
-const $=id=>document.getElementById(id);let timer=null;
-let deferredInstallPrompt=null;
-window.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault(); deferredInstallPrompt=event; $("installBtn").hidden=false;
-  $("installHelp").textContent="Website siap dipasang ke layar utama.";
-});
-$("installBtn").addEventListener("click", async () => {
-  if(!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt=null; $("installBtn").hidden=true;
-});
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}
+:root{
+--bg:#07090d;--panel:#10141b;--gold:#f4c64e;
+--gold2:#ffe7a0;--muted:#9ba4b2;
+--line:rgba(244,198,78,.27);
+--green:#18d889;--red:#ff5268;
+}
+*{box-sizing:border-box}
+body{
+margin:0;padding-bottom:85px;color:#f6f7fa;
+background:radial-gradient(ellipse at 50% -15%,#35270d,#10131a 36%,#07090d 72%);
+font-family:Arial,system-ui,sans-serif
+}
+.app{max-width:620px;margin:auto;padding:14px}
+.topbar{
+display:flex;align-items:center;justify-content:space-between;
+padding:10px 3px 17px
+}
+.brand{text-align:center}
+.brand-name{
+font-weight:900;letter-spacing:1px;color:var(--gold2);
+font-size:19px;text-shadow:0 0 14px #a97820
+}
+.brand-sub{font-size:10px;color:#b8bec8;margin-top:4px}
+.crown{font-size:25px;color:var(--gold)}
+.icon-btn{
+border:1px solid var(--line);background:#11151d;
+color:var(--gold);width:39px;height:39px;border-radius:12px
+}
+.page{display:none}
+.page.active{display:block}
+.card{
+background:linear-gradient(145deg,#161b24,#080b10);
+border:1px solid var(--line);border-radius:18px;
+padding:15px;margin-bottom:13px;
+box-shadow:0 8px 25px #0008,inset 0 1px #ffffff08
+}
+.card-title{
+font-weight:800;color:var(--gold2);
+font-size:14px;margin-bottom:13px
+}
+.muted{color:var(--muted)}
+.tiny{font-size:11px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pill{
+border:1px solid var(--line);border-radius:20px;
+padding:6px 10px;color:var(--gold2);font-size:11px
+}
+.price-strip{
+display:flex;justify-content:space-between;align-items:center;
+background:#080c12;border:1px solid #28303b;
+border-radius:14px;padding:12px;margin-bottom:12px
+}
+.symbol{font-weight:900;font-size:17px}
+.live-price{font-weight:900;color:var(--green)}
+.tf-row{display:flex;gap:7px;overflow:auto;margin:10px 0}
+.tf{
+flex:1;min-width:48px;padding:10px 6px;
+border:1px solid #333b47;border-radius:10px;
+background:#10151d;color:white;font-weight:bold
+}
+.tf.active{
+background:linear-gradient(#ffe28b,#d99b20);
+color:#17120a;border-color:#ffe39a
+}
+.chart-wrap{
+height:350px;border-radius:14px;overflow:hidden;
+background:#080d14;border:1px solid #26303c
+}
+.chart-wrap iframe{width:100%;height:100%;border:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{
+background:#090d13;border:1px solid #252d38;
+border-radius:13px;padding:11px
+}
+.stat-label{font-size:11px;color:var(--muted)}
+.stat-value{font-weight:800;font-size:19px;margin-top:5px}
+.gold{color:var(--gold)}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.nav{
+position:fixed;z-index:10;bottom:0;left:0;right:0;
+padding:9px 10px;background:rgba(5,8,13,.97);
+border-top:1px solid var(--line);
+display:grid;grid-template-columns:repeat(4,1fr);
+max-width:620px;margin:auto
+}
+.nav button{
+border:0;background:transparent;color:#9ca5b2;
+padding:7px 2px;border-radius:13px;
+font-size:10px;display:flex;flex-direction:column;
+align-items:center;gap:5px
+}
+.nav .ico{font-size:21px}
+.nav button.active{
+color:var(--gold2);
+background:radial-gradient(ellipse,#79531555,transparent 75%)
+}
+.signal-banner{
+display:flex;align-items:center;justify-content:center;
+min-height:75px;border-radius:15px;font-size:27px;
+font-weight:950;margin-bottom:13px;
+border:1px solid #3d4652;background:#111821
+}
+.signal-banner.buy{color:#6affb6;border-color:#16b96f;background:#063c27}
+.signal-banner.sell{color:#ff8290;border-color:#d83e56;background:#4a101b}
+.signal-banner.wait{color:var(--gold2)}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.level{
+padding:11px;border:1px solid #29313d;
+background:#090d13;border-radius:12px
+}
+.level label{display:block;font-size:11px;color:var(--muted)}
+.level strong{display:block;font-size:17px;margin-top:5px}
+.tp-list{display:grid;gap:8px}
+.tp{
+display:flex;justify-content:space-between;align-items:center;
+padding:12px;background:#0b1118;
+border:1px solid #28323d;border-radius:12px
+}
+.tp b{color:var(--gold2)}
+.rr{font-size:11px;color:var(--green);font-weight:bold}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{
+border:1px solid #293441;background:#0a1017;
+padding:11px;border-radius:11px;font-size:12px
+}
+.check span{color:var(--gold)}
+.analysis-box{
+border:1px solid var(--line);border-radius:14px;
+padding:13px;background:linear-gradient(120deg,#17150f,#0a0e14)
+}
+.field{margin:13px 0}
+.field label{
+display:block;color:#c3cad3;font-size:12px;margin-bottom:7px
+}
+.field select{
+width:100%;padding:12px;border:1px solid #38414e;
+border-radius:11px;background:#090d13;color:white;font-size:14px
+}
+.save-btn,.refresh-btn{
+width:100%;border:0;border-radius:12px;padding:13px;
+font-weight:900;background:linear-gradient(#ffe28b,#d99a1b);
+color:#1b1407;margin-top:8px
+}
+.refresh-btn{
+background:#171d27;color:var(--gold2);
+border:1px solid var(--line)
+}
+.notice{font-size:11px;line-height:1.5;color:#9da7b5;margin-top:12px}
+.status{font-size:11px;color:var(--muted)}
+@media(min-width:520px){
+.app{padding-top:20px}
+.chart-wrap{height:410px}
+}
+</style>
+</head>
 
-function n(v){return Number(v).toFixed(2)}
-function show(d){
- const side=d.signal;$("direction").textContent=side;$("direction").className="direction "+side;
- $("reason").textContent=d.reason;$("rsi").textContent=n(d.rsi);$("ema").textContent=n(d.ema9)+" / "+n(d.ema21);$("atr").textContent=n(d.atr);
- if(side==="WAIT"){["entry","sl","tp"].forEach(id=>$(id).textContent="—");return}
- const pip=Number($("pip").value),entry=Number(d.entry),slDist=Number($("slp").value)*pip,tpDist=Number($("tpp").value)*pip;
- if(!pip||pip<=0){$("status").textContent="Nilai pip tidak valid.";return}
- $("entry").textContent=n(entry);$("sl").textContent=n(entry+(side==="BUY"?-slDist:slDist));$("tp").textContent=n(entry+(side==="BUY"?tpDist:-tpDist));
+<body>
+<div class="app">
+
+<header class="topbar">
+<button class="icon-btn">☰</button>
+<div class="brand">
+<div class="crown">♛</div>
+<div class="brand-name">GOLD SCALP AI PRO</div>
+<div class="brand-sub">SMART TRADING • POWERFUL SIGNAL</div>
+</div>
+<button class="icon-btn" id="headerRefresh">↻</button>
+</header>
+
+<!-- MENU HOME -->
+<section class="page active" id="home">
+
+<div class="price-strip">
+<div>
+<div class="symbol">XAUUSD</div>
+<div class="tiny muted">GOLD / US DOLLAR</div>
+</div>
+<div style="text-align:right">
+<div class="live-price" id="homePrice">--</div>
+<div class="tiny muted" id="homeStatus">Menunggu data market</div>
+</div>
+</div>
+
+<div class="tf-row" id="homeTf">
+<button class="tf active" data-tf="1min">M1</button>
+<button class="tf" data-tf="5min">M5</button>
+<button class="tf" data-tf="15min">M15</button>
+<button class="tf" data-tf="30min">M30</button>
+<button class="tf" data-tf="1h">H1</button>
+</div>
+
+<div class="card">
+<div class="card-title">LIVE TRADINGVIEW CHART</div>
+<div class="chart-wrap" id="tvChart"></div>
+</div>
+
+<div class="card">
+<div class="card-title">RINGKASAN MARKET</div>
+<div class="stats">
+<div class="stat">
+<div class="stat-label">Harga API</div>
+<div class="stat-value gold" id="statPrice">--</div>
+</div>
+<div class="stat">
+<div class="stat-label">Arah Sinyal</div>
+<div class="stat-value" id="statSignal">--</div>
+</div>
+<div class="stat">
+<div class="stat-label">RSI</div>
+<div class="stat-value" id="statRsi">--</div>
+</div>
+<div class="stat">
+<div class="stat-label">ATR</div>
+<div class="stat-value" id="statAtr">--</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- MENU AI ANALYSIS -->
+<section class="page" id="analysis">
+
+<div class="card">
+<div class="card-title">
+✦ AI ANALYSIS — SMART MONEY CONCEPTS
+<span class="pill" id="analysisTf">M1</span>
+</div>
+
+<div class="analysis-box">
+<div class="tiny muted">KESIMPULAN ANALISIS</div>
+<div id="analysisBias" class="gold" style="font-size:20px;font-weight:900;margin:7px 0">
+MENUNGGU DATA
+</div>
+<div class="muted" id="analysisReason">
+Tekan refresh untuk mengambil analisis terbaru.
+</div>
+</div>
+
+<div class="card-title" style="margin-top:17px">KOMPONEN SMC</div>
+
+<div class="checks">
+<div class="check"><span>◆</span> Market Structure: <b id="smcStructure">--</b></div>
+<div class="check"><span>◆</span> Liquidity Sweep: <b id="smcSweep">--</b></div>
+<div class="check"><span>◆</span> BOS: <b id="smcBos">--</b></div>
+<div class="check"><span>◆</span> CHoCH: <b id="smcChoch">--</b></div>
+<div class="check"><span>◆</span> Order Block: <b id="smcOb">--</b></div>
+<div class="check"><span>◆</span> FVG: <b id="smcFvg">--</b></div>
+<div class="check"><span>◆</span> Premium/Discount: <b id="smcZone">--</b></div>
+<div class="check"><span>◆</span> EMA/RSI: <b id="smcMomentum">--</b></div>
+</div>
+
+<div class="notice">
+Komponen SMC ditampilkan sesuai data yang dikirim API.
+Jika data belum tersedia, Worker perlu diperbarui.
+Dashboard tidak mengarang konfirmasi.
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">AREA STRUKTUR MARKET</div>
+<div class="levels">
+<div class="level"><label>Range High</label><strong id="rangeHigh">--</strong></div>
+<div class="level"><label>Range Low</label><strong id="rangeLow">--</strong></div>
+<div class="level"><label>Midpoint</label><strong id="midpoint">--</strong></div>
+<div class="level"><label>Waktu Candle</label><strong id="candleTime">--</strong></div>
+</div>
+</div>
+</section>
+
+<!-- MENU SIGNAL -->
+<section class="page" id="signal">
+
+<div class="card">
+<div class="card-title">SIGNAL BUY / SELL</div>
+
+<div class="signal-banner wait" id="signalBanner">WAIT</div>
+
+<div class="levels">
+<div class="level">
+<label>ENTRY</label>
+<strong id="entryPrice">--</strong>
+</div>
+<div class="level">
+<label>STOP LOSS</label>
+<strong class="red" id="slPrice">--</strong>
+</div>
+</div>
+
+<div class="card-title" style="margin-top:18px">SMART TAKE PROFIT</div>
+
+<div class="tp-list">
+<div class="tp">
+<div><b>TP1</b><div class="tiny muted">Risk Reward 1:2</div></div>
+<strong id="tp1">--</strong><span class="rr">2R</span>
+</div>
+<div class="tp">
+<div><b>TP2</b><div class="tiny muted">Risk Reward 1:3</div></div>
+<strong id="tp2">--</strong><span class="rr">3R</span>
+</div>
+<div class="tp">
+<div><b>TP3</b><div class="tiny muted">Risk Reward 1:5</div></div>
+<strong id="tp3">--</strong><span class="rr">5R</span>
+</div>
+</div>
+
+<div class="notice">
+TP dihitung berdasarkan jarak harga Entry ke SL, bukan pip.
+BUY: target di atas entry. SELL: target di bawah entry.
+Jika sinyal WAIT, target tidak ditampilkan.
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">KONDISI SINYAL</div>
+<div id="signalReason" class="muted">Belum ada data sinyal.</div>
+<div class="row" style="margin-top:13px">
+<span class="tiny muted">Status candle</span>
+<b id="candleStatus">--</b>
+</div>
+</div>
+</section>
+
+<!-- MENU SETTINGS -->
+<section class="page" id="settings">
+
+<div class="card">
+<div class="card-title">PENGATURAN UTAMA</div>
+
+<div class="field">
+<label>Broker</label>
+<select id="broker">
+<option>Valetax</option>
+<option>Broker lainnya</option>
+</select>
+</div>
+
+<div class="field">
+<label>Timeframe analisis</label>
+<select id="timeframe">
+<option value="1min">M1</option>
+<option value="5min">M5</option>
+</select>
+</div>
+
+<div class="field">
+<label>Auto Refresh</label>
+<select id="refresh">
+<option value="0">Manual</option>
+<option value="30">30 detik</option>
+<option value="60" selected>60 detik</option>
+<option value="120">2 menit</option>
+<option value="300">5 menit</option>
+</select>
+</div>
+
+<div class="field">
+<label>Risiko per transaksi</label>
+<select id="risk">
+<option value="1">1%</option>
+<option value="2">2%</option>
+<option value="3">3%</option>
+<option value="5">5%</option>
+</select>
+</div>
+
+<button class="save-btn" id="saveSettings">✓ SIMPAN PENGATURAN</button>
+
+<div class="notice">
+Pengaturan risiko hanya menjadi preferensi dashboard.
+Website belum menghitung lot otomatis atau mengeksekusi order MT5.
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">KONEKSI DATA</div>
+<div class="row">
+<span class="muted">API Market</span>
+<b id="apiConnection" class="status">Belum diuji</b>
+</div>
+<div class="row" style="margin-top:12px">
+<span class="muted">Metode analisis</span>
+<b>SMC Rule-Based</b>
+</div>
+<button class="refresh-btn" id="testApi">UJI KONEKSI API</button>
+</div>
+</section>
+</div>
+
+<!-- NAVIGASI BAWAH -->
+<nav class="nav">
+<button class="active" data-page="home"><span class="ico">⌂</span>HOME</button>
+<button data-page="analysis"><span class="ico">♧</span>AI ANALYSIS</button>
+<button data-page="signal"><span class="ico">▥</span>SIGNAL</button>
+<button data-page="settings"><span class="ico">⚙</span>SETTINGS</button>
+</nav>
+
+<script>
+const $=id=>document.getElementById(id);
+let currentTf=localStorage.getItem('gold_tf')||'1min';
+let refreshTimer=null;
+
+const fmt=v=>{
+if(v===null||v===undefined||v===''||!Number.isFinite(Number(v)))return '--';
+return Number(v).toFixed(2);
+};
+
+const tfLabel=v=>({
+'1min':'M1','5min':'M5','15min':'M15',
+'30min':'M30','1h':'H1'
+}[v]||v);
+
+function showPage(id){
+document.querySelectorAll('.page').forEach(p=>{
+p.classList.toggle('active',p.id===id);
+});
+document.querySelectorAll('.nav button').forEach(b=>{
+b.classList.toggle('active',b.dataset.page===id);
+});
 }
-async function analyze(){
- $("status").textContent="Mengambil candle market…";
- try{const r=await fetch("/api/analyze?interval="+encodeURIComponent($("tf").value));const d=await r.json();if(!r.ok)throw Error(d.error||"Gagal mengambil data");
- show(d);$("status").textContent="Data candle: "+d.candleTime+" · diperbarui "+new Date(d.fetchedAt).toLocaleTimeString("id-ID");
- }catch(e){$("status").textContent="Error: "+e.message+" Pastikan server dan API key sudah disiapkan."}
+
+document.querySelectorAll('.nav button').forEach(b=>{
+b.addEventListener('click',()=>showPage(b.dataset.page));
+});
+
+function renderChart(){
+const interval={
+'1min':'1','5min':'5','15min':'15',
+'30min':'30','1h':'60'
+}[currentTf]||'1';
+
+$('tvChart').innerHTML=`
+<iframe title="TradingView XAUUSD"
+src="https://s.tradingview.com/widgetembed/?frameElementId=tv_chart&symbol=OANDA%3AXAUUSD&interval=${interval}&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=080d14&theme=dark&style=1&timezone=Asia%2FJakarta&withdateranges=1&hideideas=1&locale=id"
+allowtransparency="true" scrolling="no"></iframe>`;
 }
-function setRefresh(){if(timer)clearInterval(timer);let sec=Number($("refresh").value);if(sec)timer=setInterval(analyze,sec*1000)}
-$("go").addEventListener("click",analyze);$("refresh").addEventListener("change",setRefresh);$("tf").addEventListener("change",analyze);setRefresh();
-</script></body></html>
+
+function setTf(tf){
+currentTf=tf;
+localStorage.setItem('gold_tf',tf);
+document.querySelectorAll('#homeTf .tf').forEach(b=>{
+b.classList.toggle('active',b.dataset.tf===tf);
+});
+$('analysisTf').textContent=tfLabel(tf);
+renderChart();
+fetchAnalysis();
+}
+
+document.querySelectorAll('#homeTf .tf').forEach(b=>{
+b.addEventListener('click',()=>setTf(b.dataset.tf));
+});
+
+function val(obj,keys){
+for(const k of keys){
+if(obj&&obj[k]!==undefined&&obj[k]!==null)return obj[k];
+}
+return null;
+}
+
+function setText(id,v){
+$(id).textContent=(v===null||v===undefined||v==='')?
+'Belum tersedia':String(v);
+}
+
+function render(d){
+const price=val(d,['price','close','lastPrice']);
+const signal=String(val(d,['signal'])||'WAIT').toUpperCase();
+const entry=Number(val(d,['entry']));
+const sl=Number(val(d,['sl','stopLoss']));
+
+$('homePrice').textContent=fmt(price);
+$('statPrice').textContent=fmt(price);
+$('statSignal').textContent=signal;
+$('statSignal').className='stat-value '+
+(signal==='BUY'?'green':signal==='SELL'?'red':'gold');
+
+$('statRsi').textContent=fmt(d.rsi);
+$('statAtr').textContent=fmt(d.atr);
+$('homeStatus').textContent='Data API diterima';
+
+const st=d.structure||{};
+
+$('analysisBias').textContent=
+signal==='WAIT'?'BELUM ADA SETUP':signal+' BIAS';
+$('analysisBias').className=
+signal==='BUY'?'green':signal==='SELL'?'red':'gold';
+
+setText('analysisReason',d.reason);
+setText('smcStructure',val(st,['trend','structure','marketStructure']));
+setText('smcSweep',val(st,['sweep','liquiditySweep']));
+setText('smcBos',val(st,['bos','BOS']));
+setText('smcChoch',val(st,['choch','CHoCH']));
+setText('smcOb',val(d,['orderBlock','ob'])||val(st,['orderBlock','ob']));
+setText('smcFvg',val(d,['fvg','fairValueGap'])||val(st,['fvg']));
+setText('smcZone',val(st,['zone','premiumDiscount','position']));
+
+setText('smcMomentum',
+'RSI '+fmt(d.rsi)+
+' / EMA9 '+fmt(d.ema9)+
+' / EMA21 '+fmt(d.ema21));
+
+setText('rangeHigh',fmt(st.rangeHigh));
+setText('rangeLow',fmt(st.rangeLow));
+setText('midpoint',fmt(st.midpoint));
+setText('candleTime',d.candleTime||'--');
+setText('candleStatus',d.candleStatus||'--');
+
+const banner=$('signalBanner');
+banner.textContent=signal;
+banner.className='signal-banner '+
+(signal==='BUY'?'buy':signal==='SELL'?'sell':'wait');
+
+$('signalReason').textContent=d.reason||'Tidak ada keterangan tambahan.';
+
+if((signal==='BUY'||signal==='SELL')&&
+Number.isFinite(entry)&&Number.isFinite(sl)&&
+entry>0&&sl>0&&entry!==sl){
+
+const risk=Math.abs(entry-sl);
+const direction=signal==='BUY'?1:-1;
+
+$('entryPrice').textContent=fmt(entry);
+$('slPrice').textContent=fmt(sl);
+$('tp1').textContent=fmt(entry+direction*risk*2);
+$('tp2').textContent=fmt(entry+direction*risk*3);
+$('tp3').textContent=fmt(entry+direction*risk*5);
+
+}else{
+$('entryPrice').textContent='--';
+$('slPrice').textContent='--';
+$('tp1').textContent='--';
+$('tp2').textContent='--';
+$('tp3').textContent='--';
+}
+
+$('apiConnection').textContent='Terhubung';
+$('apiConnection').className='status green';
+$('homeUpdated').textContent=
+'Update: '+new Date().toLocaleTimeString('id-ID');
+}
+
+async function fetchAnalysis(){
+$('homeStatus').textContent='Mengambil data...';
+
+try{
+const response=await fetch(
+'/api/analyze?interval='+encodeURIComponent(currentTf),
+{cache:'no-store'}
+);
+
+if(!response.ok)throw new Error('HTTP '+response.status);
+
+const data=await response.json();
+if(data.error)throw new Error(data.error);
+
+render(data);
+
+}catch(error){
+$('homeStatus').textContent='Gagal mengambil data';
+$('apiConnection').textContent='Gagal: '+error.message;
+$('apiConnection').className='status red';
+$('analysisReason').textContent=
+'Koneksi API gagal: '+error.message;
+}
+}
+
+function applyRefresh(){
+if(refreshTimer)clearInterval(refreshTimer);
+const seconds=Number($('refresh').value||0);
+if(seconds>0){
+refreshTimer=setInterval(fetchAnalysis,seconds*1000);
+}
+}
+
+$('headerRefresh').addEventListener('click',fetchAnalysis);
+$('testApi').addEventListener('click',fetchAnalysis);
+
+$('saveSettings').addEventListener('click',()=>{
+localStorage.setItem('gold_broker',$('broker').value);
+localStorage.setItem('gold_tf',$('timeframe').value);
+localStorage.setItem('gold_refresh',$('refresh').value);
+localStorage.setItem('gold_risk',$('risk').value);
+
+setTf($('timeframe').value);
+applyRefresh();
+
+$('saveSettings').textContent='✓ TERSIMPAN';
+setTimeout(()=>{
+$('saveSettings').textContent='✓ SIMPAN PENGATURAN';
+},1500);
+});
+
+$('broker').value=localStorage.getItem('gold_broker')||'Valetax';
+$('timeframe').value=localStorage.getItem('gold_tf')||'1min';
+$('refresh').value=localStorage.getItem('gold_refresh')||'60';
+$('risk').value=localStorage.getItem('gold_risk')||'1';
+
+currentTf=$('timeframe').value;
+$('analysisTf').textContent=tfLabel(currentTf);
+
+document.querySelectorAll('#homeTf .tf').forEach(b=>{
+b.classList.toggle('active',b.dataset.tf===currentTf);
+});
+
+renderChart();
+applyRefresh();
+fetchAnalysis();
+</script>
+</body>
+</html>
