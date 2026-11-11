@@ -2,7 +2,7 @@
   "id": "/",
   "name": "GOLD SCALP AI PRO",
   "short_name": "GOLD SCALP",
-  "description": "Dashboard signal scalping XAUUSD M1 dan M5",
+  "description": "GOLD SCALP AI PRO - Platform analisis XAUUSD menggunakan Smart Money Concepts pada timeframe M5, dilengkapi sinyal BUY, SELL, WAIT, Entry, Smart SL dan TP.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
